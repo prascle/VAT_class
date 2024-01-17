@@ -8,15 +8,27 @@ This Python class based on astropy and astroquery is dedicated to generate a set
 
 
 # 0 - The prerequisites for this Python class that are to be installed are the following classes:  
-      -astroquery.skyview  
-      -astropy units  
-      -from astropy.coordinates => (SkyCoord, Angle, position_angle)
-      -from astropy.wcs => WCS  
-      -from astropy.visualization => astropy_mpl_style  
-      -matplotlib.pyplot  
-      -numpy  
+ - astroquery.skyview
+ - astropy units
+ - from astropy.coordinates => (SkyCoord, Angle, position_angle)
+ - from astropy.wcs => WCS
+ - from astropy.visualization => astropy_mpl_style
+ - matplotlib.pyplot
+ - numpy
 
+Here is an example of virtual environment built with miniconda3:
 
+```
+conda activate
+conda update -y -n base -c defaults conda
+
+conda create -y --name astro python=3.10
+
+conda activate astro
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda install -y pyside2 astropy astroquery matplotlib numpy ipython
+```
 
 This class provides a GUI to prepare a set of .fits files that can be post-processed with the prefered softwares of the user.  
 # 1 - In a first frame :  
