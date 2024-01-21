@@ -24,13 +24,13 @@
        </sizepolicy>
       </property>
       <property name="toolTip">
-       <string>le tooltip du tab widget</string>
+       <string/>
       </property>
       <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;le deuxieme tab&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="targetOverview">
        <property name="sizePolicy">
@@ -84,7 +84,11 @@
            <item row="0" column="0">
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
-              <widget class="QLineEdit" name="le_target"/>
+              <widget class="QLineEdit" name="le_target">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Object name, catalog prefix accepted :&lt;/p&gt;&lt;p&gt;IC: International Catalog&lt;/p&gt;&lt;p&gt;M: Messier&lt;/p&gt;&lt;p&gt;NGC: New General Catalog&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label">
@@ -108,6 +112,9 @@
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="pb_getData">
+               <property name="toolTip">
+                <string>Check if the object is known (Simbad)</string>
+               </property>
                <property name="text">
                 <string>Retrieve Data</string>
                </property>
@@ -128,8 +135,20 @@
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QDoubleSpinBox" name="dsb_visionField">
+               <property name="toolTip">
+                <string>Size of the region to acquire (°)</string>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>0.100000000000000</double>
+               </property>
                <property name="singleStep">
                 <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>2.000000000000000</double>
                </property>
               </widget>
              </item>
@@ -155,6 +174,9 @@
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="pb_generateOverview">
+               <property name="toolTip">
+                <string>Get an overview of the region of interest</string>
+               </property>
                <property name="text">
                 <string>Generate Overview</string>
                </property>
@@ -187,9 +209,6 @@
         </item>
         <item row="1" column="0">
          <layout class="QGridLayout" name="gridLayout_7">
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="dsb_percentCoverage"/>
-          </item>
           <item row="2" column="1">
            <widget class="QPushButton" name="pb_calculateTiles">
             <property name="text">
@@ -198,7 +217,26 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="dsb_resolution"/>
+           <widget class="QDoubleSpinBox" name="dsb_resolution">
+            <property name="toolTip">
+             <string>resolution in second par pixel</string>
+            </property>
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="minimum">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>60.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value">
+             <double>0.700000000000000</double>
+            </property>
+           </widget>
           </item>
           <item row="2" column="0">
            <spacer name="horizontalSpacer_3">
@@ -243,7 +281,20 @@
           <item row="3" column="1">
            <widget class="QPushButton" name="pb_previewTiles">
             <property name="text">
-             <string>tiles plot preview</string>
+             <string>toggle tiles preview</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="dsb_percentCoverage">
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>10</number>
             </property>
            </widget>
           </item>
