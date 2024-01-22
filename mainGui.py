@@ -8,8 +8,6 @@ from PySide2.QtWidgets import *  # type: ignore
 
 from ui_mainwindow import Ui_MainWindow
 
-import random
-
 import logging
 
 import VAT_interface
@@ -24,7 +22,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG) #INFO
         self.vati = VAT_interface.VAT_interface()
 
         self.graphLayout = QVBoxLayout(self.frame)
@@ -32,7 +30,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.graphLayout.addWidget(self.graphics)
 
         self.tbw.setTabText(0, "Target overview")
-        self.tbw.setTabText(1, "Fits contents specifications")
+        self.tbw.setTabText(1, "Fits specifications")
         self.tbw.setTabText(2, "Download data")
         for i in range(self.tbw.count()):
             self.tbw.setTabEnabled(i, False)
