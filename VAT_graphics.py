@@ -41,6 +41,10 @@ class VATgraphics(QWidget):
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
+        self.overviewTiles = False
+        self.hdu = None
+        self.title = ""
+
     def plotImage(self, imageFile, title=None):
         '''
         plot a .fits image
@@ -59,34 +63,46 @@ class VATgraphics(QWidget):
         self.canvas.draw()
 
 
-    def plotHDU(self, hdu, title=None):
+    def plotHDU(self, hdu=None, title=None):
         '''
         plot an HDU
+        if hdu is None, retrieve stored HDU, otherwise store HDU
         projection is extracted from the image header
         '''
         logging.info("VATgraphics plot HDU")
-        if title is None:
-            title = "no name"
+        if hdu is None:
+            hdu = self.hdu
+            title = self.title
+        else:
+            self.hdu = hdu
+            if title is None:
+                title = "no name"
+            self.title = title
         self.figure.clear()
-        self.figure.suptitle(title)
-        data = hdu.data
-        header = hdu.header
-        wcs = WCS(header)
-        self.ax = self.figure.add_subplot(projection=wcs)
-        imgplot = self.ax.imshow(data, cmap='binary_r', origin='lower')
+        if hdu is not None:
+            self.figure.suptitle(title)
+            data = hdu.data
+            header = hdu.header
+            wcs = WCS(header)
+            self.ax = self.figure.add_subplot(projection=wcs)
+            imgplot = self.ax.imshow(data, cmap='binary_r', origin='lower')
         self.canvas.draw()
 
     def plotOverviewTiles(self, tileCoordinatesCenters, tileFov):
         """
         """
         logging.info("plotOverviewTiles")
-        colors = ["red", "green", "blue"]
-        for i in range(len(tileCoordinatesCenters)):
-            r = Quadrangle( tuple([tileCoordinatesCenters[i].ra.degree,tileCoordinatesCenters[i].dec.degree])*u.deg,
-                            1.4*tileFov*u.deg,
-                            tileFov*u.deg,
-                            edgecolor=colors[i%len(colors)],
-                            facecolor='none',
-                            transform=self.ax.get_transform('world'))
-            self.ax.add_patch(r)
-        self.canvas.draw()
+        self.plotHDU()
+        self.overviewTiles = not self.overviewTiles
+        if self.overviewTiles:
+            self.ax.grid(color='black',ls='solid')
+            colors = ["red", "green", "blue"]
+            for i in range(len(tileCoordinatesCenters)):
+                r = Quadrangle( tuple([tileCoordinatesCenters[i].ra.degree,tileCoordinatesCenters[i].dec.degree])*u.deg,
+                                1.4*tileFov*u.deg,
+                                tileFov*u.deg,
+                                edgecolor=colors[i%len(colors)],
+                                facecolor='none',
+                                transform=self.ax.get_transform('world'))
+                self.ax.add_patch(r)
+            self.canvas.draw()
