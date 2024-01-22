@@ -24,7 +24,7 @@ class VATgraphics(QWidget):
         The Canvas Widget displays the `figure`
         We add a navigation widget
         '''
-        logging.debug("VATgraphics __init__")
+        logging.info("VATgraphics __init__")
 
         super().__init__(parent)
 
@@ -44,13 +44,31 @@ class VATgraphics(QWidget):
         plot a .fits image
         projection is extracted from the image header
         '''
-        logging.debug("VATgraphics plot")
+        logging.info("VATgraphics plot fits image")
         if title is None:
             title = os.path.basename(imageFile)
         self.figure.clear()
         self.figure.suptitle(title)
         data = fits.getdata(imageFile, ext=0)
         header = fits.getheader(imageFile)
+        wcs = WCS(header)
+        self.ax = self.figure.add_subplot(projection=wcs)
+        imgplot = self.ax.imshow(data)
+        self.canvas.draw()
+
+
+    def plotHDU(self, hdu, title=None):
+        '''
+        plot an HDU
+        projection is extracted from the image header
+        '''
+        logging.info("VATgraphics plot HDU")
+        if title is None:
+            title = "no name"
+        self.figure.clear()
+        self.figure.suptitle(title)
+        data = hdu.data
+        header = hdu.header
         wcs = WCS(header)
         self.ax = self.figure.add_subplot(projection=wcs)
         imgplot = self.ax.imshow(data)

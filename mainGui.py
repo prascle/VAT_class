@@ -22,7 +22,8 @@ class VATGui(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
-        logging.basicConfig(level=logging.DEBUG) #INFO
+        # set logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL). matplotlib is very verbose with DEBUG...
+        logging.basicConfig(level=logging.INFO)
         self.vati = VAT_interface.VAT_interface()
 
         self.graphLayout = QVBoxLayout(self.frame)
@@ -48,7 +49,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.le_target.textChanged.connect(self.le_target_textChanged)
 
     def le_target_textChanged(self):
-        logging.debug("le_target_textChanged")
+        logging.info("le_target_textChanged")
         self.pb_generateOverview.setEnabled(False)
         self.tbw.setTabEnabled(1, False)
         self.tbw.setTabEnabled(2, False)
@@ -56,40 +57,56 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.tbw.setCurrentIndex(0)
 
     def pb_getData_clicked(self):
-        logging.debug("pb_getData_clicked")
+        logging.info("pb_getData_clicked")
         isOk = self.vati.checkObjName(self.le_target.text())
         self.pb_generateOverview.setEnabled(isOk)
 
-    def pb_generateOverview_clicked(self):
-        logging.debug("pb_generateOverview_clicked")
-        isOk = self.vati.generateOverview(self.le_target.text())
+    def openExistingImageFile(self):
+        logging.info("openExistingImageFile")
         res = QFileDialog.getOpenFileName(self,
-            "Open Image", "../M31/Images",  "Fits Image Files (*.fits)");
+            "Open Image", "../M31/Images",  "Fits Image Files (*.fit *.fits)");
         imageFile = res[0]
-        logging.debug("imageFile: %s"%imageFile)
-        if len(imageFile) > 0:
-            self.graphics.plotImage(imageFile)
+        logging.info("imageFile: %s"%imageFile)
+        return imageFile
+
+    def pb_generateOverview_clicked(self):
+        logging.info("pb_generateOverview_clicked")
+        previewOK = False
+        hdu = self.vati.generateOverview(self.le_target.text(),
+                                         self.dsb_visionField.value(),
+                                         2000)
+        if hdu is not None:
+            self.graphics.plotHDU(hdu, self.le_target.text())
+            previewOK = True
+        else:
+            # if generateOverview is not connected, search a local image
+            imageFile = self.openExistingImageFile()
+            logging.info("imageFile: %s"%imageFile)
+            if len(imageFile) > 0:
+                self.graphics.plotImage(imageFile)
+                previewOK = True
+        if previewOK:
             self.tbw.setTabEnabled(1, True)
 
     def pb_calculateTiles_clicked(self):
-        logging.debug("pb_calculateTiles_clicked")
+        logging.info("pb_calculateTiles_clicked")
         self.tbw.setTabEnabled(2, True)
 
     def pb_previewTiles_clicked(self):
-        logging.debug("pb_previewTiles_clicked")
+        logging.info("pb_previewTiles_clicked")
 
     def pb_selectFolder_clicked(self):
-        logging.debug("pb_selectFolder_clicked")
+        logging.info("pb_selectFolder_clicked")
         dialog = QFileDialog(self, directory="..")
         dialog.setFileMode(QFileDialog.Directory)
         if (dialog.exec()):
             res = dialog.selectedFiles()
             self.folder = res[0]
-            logging.debug("folder: %s"%self.folder)
+            logging.info("folder: %s"%self.folder)
             self.pb_importFits.setEnabled(True)
 
     def pb_importFits_clicked(self):
-        logging.debug("pb_importFits_clicked")
+        logging.info("pb_importFits_clicked")
 
 
 if __name__ == "__main__":
