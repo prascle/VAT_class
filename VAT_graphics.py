@@ -11,9 +11,11 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 
-from astropy.visualization import astropy_mpl_style
 from astropy.io import fits
 from astropy.wcs import WCS
+from astropy.visualization import astropy_mpl_style
+from astropy.visualization.wcsaxes import Quadrangle
+from astropy import units as u
 
 import logging
 
@@ -53,7 +55,7 @@ class VATgraphics(QWidget):
         header = fits.getheader(imageFile)
         wcs = WCS(header)
         self.ax = self.figure.add_subplot(projection=wcs)
-        imgplot = self.ax.imshow(data)
+        imgplot = self.ax.imshow(data, cmap='binary_r', origin='lower')
         self.canvas.draw()
 
 
@@ -71,6 +73,20 @@ class VATgraphics(QWidget):
         header = hdu.header
         wcs = WCS(header)
         self.ax = self.figure.add_subplot(projection=wcs)
-        imgplot = self.ax.imshow(data)
+        imgplot = self.ax.imshow(data, cmap='binary_r', origin='lower')
         self.canvas.draw()
 
+    def plotOverviewTiles(self, tileCoordinatesCenters, tileFov):
+        """
+        """
+        logging.info("plotOverviewTiles")
+        colors = ["red", "green", "blue"]
+        for i in range(len(tileCoordinatesCenters)):
+            r = Quadrangle( tuple([tileCoordinatesCenters[i].ra.degree,tileCoordinatesCenters[i].dec.degree])*u.deg,
+                            1.4*tileFov*u.deg,
+                            tileFov*u.deg,
+                            edgecolor=colors[i%len(colors)],
+                            facecolor='none',
+                            transform=self.ax.get_transform('world'))
+            self.ax.add_patch(r)
+        self.canvas.draw()

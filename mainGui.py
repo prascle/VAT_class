@@ -48,6 +48,10 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.pb_importFits.clicked.connect(self.pb_importFits_clicked)
         self.le_target.textChanged.connect(self.le_target_textChanged)
 
+        self.tileCoordinatesCenters = []
+        self.tilesNumber =0
+        self.tileFov = 0
+
     def le_target_textChanged(self):
         logging.info("le_target_textChanged")
         self.pb_generateOverview.setEnabled(False)
@@ -90,10 +94,22 @@ class VATGui(QMainWindow, Ui_MainWindow):
 
     def pb_calculateTiles_clicked(self):
         logging.info("pb_calculateTiles_clicked")
+        self.tilesNumber, self.tileFov = self.vati.calculateTilesNumber(self.dsb_visionField.value(),
+                                                                        self.dsb_percentCoverage.value(),
+                                                                        self.dsb_resolution.value(),
+                                                                        self.sb_nbPixels.value())
+        self.tileCoordinatesCenters = self.vati.tilesCoordinates(self.le_target.text(),
+                                                                 self.tilesNumber,
+                                                                 self.tileFov,
+                                                                 self.dsb_percentCoverage.value())
         self.tbw.setTabEnabled(2, True)
 
     def pb_previewTiles_clicked(self):
         logging.info("pb_previewTiles_clicked")
+        if self.tilesNumber == 0:
+            self.pb_calculateTiles.click()
+        self.graphics.plotOverviewTiles(self.tileCoordinatesCenters,
+                                        self.tileFov)
 
     def pb_selectFolder_clicked(self):
         logging.info("pb_selectFolder_clicked")
