@@ -55,9 +55,10 @@ class VAT_interface:
         number of tiles along an axis
         """
         tileFov = resolution/3600. * nbPixels
-        tilesNumber = np.int64(np.ceil(fovDegree / tileFov - cover/100.) * 1./(1. - cover/100.))
-        logging.info("calculateTilesNumber: %d, %f"%(tilesNumber, tileFov))
-        return tilesNumber, tileFov
+        tilesNumber = np.int64(np.ceil((fovDegree / tileFov - cover/100.) * 1./(1. - cover/100.)))
+        cover = 100*(tilesNumber*tileFov - fovDegree)/(tileFov*(tilesNumber -1))
+        logging.info("calculateTilesNumber: %d  tileFov: %f cover: %f"%(tilesNumber, tileFov, cover))
+        return tilesNumber, tileFov, cover
 
     def tilesCoordinates(self, objName, tilesNumber, tileFov, cover):
         """

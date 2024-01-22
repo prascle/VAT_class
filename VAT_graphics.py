@@ -26,7 +26,7 @@ class VATgraphics(QWidget):
         The Canvas Widget displays the `figure`
         We add a navigation widget
         '''
-        logging.info("VATgraphics __init__")
+        logging.info("VATgraphics.__init__")
 
         super().__init__(parent)
 
@@ -40,10 +40,19 @@ class VATgraphics(QWidget):
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
+        self.reset()
 
+    def reset(self):
+        logging.info("VATgraphics.reset")
         self.overviewTiles = False
         self.hdu = None
         self.title = ""
+        self.figure.clear()
+        self.canvas.draw()
+
+    def resetOverviewTiles(self):
+        if self.overviewTiles:
+            self.plotOverviewTiles([], 0)
 
     def plotImage(self, imageFile, title=None):
         '''
@@ -91,7 +100,7 @@ class VATgraphics(QWidget):
     def plotOverviewTiles(self, tileCoordinatesCenters, tileFov):
         """
         """
-        logging.info("plotOverviewTiles")
+        logging.info("VATgraphics plotOverviewTiles")
         self.plotHDU()
         self.overviewTiles = not self.overviewTiles
         if self.overviewTiles:

@@ -46,19 +46,37 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.pb_previewTiles.clicked.connect(self.pb_previewTiles_clicked)
         self.pb_selectFolder.clicked.connect(self.pb_selectFolder_clicked)
         self.pb_importFits.clicked.connect(self.pb_importFits_clicked)
-        self.le_target.textChanged.connect(self.le_target_textChanged)
 
+        self.le_target.textChanged.connect(self.le_target_textChanged)
+        self.dsb_visionField.valueChanged.connect(self.dsb_visionField_valueChanged)
+        self.dsb_percentCoverage.valueChanged.connect(self.resetPreviewTiles)
+        self.dsb_resolution.valueChanged.connect(self.resetPreviewTiles)
+        self.sb_nbPixels.valueChanged.connect(self.resetPreviewTiles)
+        self.reset()
+
+    def reset(self):
+        logging.info("reset")
         self.tileCoordinatesCenters = []
         self.tilesNumber =0
         self.tileFov = 0
-
-    def le_target_textChanged(self):
-        logging.info("le_target_textChanged")
-        self.pb_generateOverview.setEnabled(False)
         self.tbw.setTabEnabled(1, False)
         self.tbw.setTabEnabled(2, False)
         self.pb_importFits.setEnabled(False)
         self.tbw.setCurrentIndex(0)
+        self.graphics.reset()
+
+    def le_target_textChanged(self):
+        logging.info("le_target_textChanged")
+        self.reset()
+        self.pb_generateOverview.setEnabled(False)
+
+    def dsb_visionField_valueChanged(self):
+        logging.info("dsb_visionField_valueChanged")
+        self.reset()
+
+    def resetPreviewTiles(self):
+        logging.info("resetPreviewTiles")
+        self.graphics.resetOverviewTiles()
 
     def pb_getData_clicked(self):
         logging.info("pb_getData_clicked")
@@ -94,7 +112,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
 
     def pb_calculateTiles_clicked(self):
         logging.info("pb_calculateTiles_clicked")
-        self.tilesNumber, self.tileFov = self.vati.calculateTilesNumber(self.dsb_visionField.value(),
+        self.tilesNumber, self.tileFov, cover = self.vati.calculateTilesNumber(self.dsb_visionField.value(),
                                                                         self.dsb_percentCoverage.value(),
                                                                         self.dsb_resolution.value(),
                                                                         self.sb_nbPixels.value())
