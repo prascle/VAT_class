@@ -50,37 +50,38 @@ class VAT_interface:
             logging.warning("Overview is not found!")
         return hdu
 
-    def calculateTilesNumber(self, fovDegree, cover, resolution, nbPixels):
+    def calculateNbTiles(self, fovDegree, cover, resolution, nbPixels):
         """
         number of tiles along an axis
         """
         tileFov = resolution/3600. * nbPixels
-        tilesNumber = np.int64(np.ceil((fovDegree / tileFov - cover/100.) * 1./(1. - cover/100.)))
-        cover = 100*(tilesNumber*tileFov - fovDegree)/(tileFov*(tilesNumber -1))
-        logging.info("calculateTilesNumber: %d  tileFov: %f cover: %f"%(tilesNumber, tileFov, cover))
-        return tilesNumber, tileFov, cover
+        nbTiles = np.int64(np.ceil((fovDegree / tileFov - cover/100.) * 1./(1. - cover/100.)))
+        cover = 100*(nbTiles*tileFov - fovDegree)/(tileFov*(nbTiles -1))
+        logging.info("calculateNbTiles: %d  tileFov: %f cover: %f"%(nbTiles, tileFov, cover))
+        return nbTiles, tileFov, cover
 
-    def tilesCoordinates(self, objName, tilesNumber, tileFov, cover):
+    def tilesCoordinates(self, objName, nbTiles, tileFov, cover):
         """
         """
         logging.info("tilesCoordinates")
         center_coords = SkyCoord.from_name(objName)
         offset_value = (tileFov*(1-cover/100.) )* u.deg
-        # Direction de référence pour le décalage suivant les
-        # déclinaisons positives, on a pris pi/4 arbitrairement. Il fallait logiquement une valeur entre 0. et pi/2.
-        # Le même raisonnement est appliquée pour chaque direction de décalage. Seul le signe change et les coordonnées du 2nd
-        # point, on inverse simplement longitude et latitude.
-        position_angle_DECplus  = position_angle(0., 0.,       0., np.pi/4.)
-        position_angle_DECmoins = position_angle(0., 0.,       0.,-np.pi/4.)
-        position_angle_RAplus   = position_angle(0., 0., np.pi/4.,       0.)
-        position_angle_RAmoins  = position_angle(0., 0.,-np.pi/4.,       0.)
-        # Translation du point de départ à partir des corrdonnées du centre de l'objet ciblé
-        coord_starting_point1 =         center_coords.directional_offset_by(position_angle_RAmoins,  offset_value/2.*float(tilesNumber))
-        coord_starting_point  = coord_starting_point1.directional_offset_by(position_angle_DECmoins, offset_value/2.*float(tilesNumber))
+        # --- Direction de référence pour le décalage suivant les déclinaisons positives.
+        #     on a pris pi/4 (radian) arbitrairement. Il fallait logiquement une valeur entre 0. et pi/2.
+        #     angle = position_angle(lon1, lat1, lon2, lat2) : Position Angle (East of North) between two points on a sphere.
+        #     https://docs.astropy.org/en/stable/api/astropy.coordinates.position_angle.html#astropy.coordinates.position_angle
+        alpha = np.pi/4.
+        position_angle_DECplus  = position_angle(0., 0.,    0., alpha)
+        position_angle_DECmoins = position_angle(0., 0.,    0.,-alpha)
+        position_angle_RAplus   = position_angle(0., 0., alpha,    0.)
+        position_angle_RAmoins  = position_angle(0., 0.,-alpha,    0.)
+        # --- Translation du point de départ à partir des coordonnées du centre de l'objet ciblé
+        coord_starting_point1 =         center_coords.directional_offset_by(position_angle_RAmoins,  nbTiles*offset_value/2.)
+        coord_starting_point  = coord_starting_point1.directional_offset_by(position_angle_DECmoins, nbTiles*offset_value/2.)
         # On applique ensuite le décalage pour déterminer l'emplacement de chaque tuile à partir de cette nouvelle origine
         tile_coordinates_center = []
-        for i in range(tilesNumber):
-            for j in range(tilesNumber):
+        for i in range(nbTiles):
+            for j in range(nbTiles):
                 coord_tile_step1 = coord_starting_point.directional_offset_by(position_angle_RAplus,  offset_value*float(i))
                 coord_tile_final =     coord_tile_step1.directional_offset_by(position_angle_DECplus, offset_value*float(j))
                 tile_coordinates_center.append(coord_tile_final)

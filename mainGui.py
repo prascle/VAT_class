@@ -57,8 +57,9 @@ class VATGui(QMainWindow, Ui_MainWindow):
     def reset(self):
         logging.info("reset")
         self.tileCoordinatesCenters = []
-        self.tilesNumber =0
+        self.nbTiles = 0
         self.tileFov = 0
+        self.tileCoordinatesCenters = []
         self.tbw.setTabEnabled(1, False)
         self.tbw.setTabEnabled(2, False)
         self.pb_importFits.setEnabled(False)
@@ -76,6 +77,8 @@ class VATGui(QMainWindow, Ui_MainWindow):
 
     def resetPreviewTiles(self):
         logging.info("resetPreviewTiles")
+        self.nbTiles =0
+        self.tileFov = 0
         self.graphics.resetOverviewTiles()
 
     def pb_getData_clicked(self):
@@ -112,21 +115,22 @@ class VATGui(QMainWindow, Ui_MainWindow):
 
     def pb_calculateTiles_clicked(self):
         logging.info("pb_calculateTiles_clicked")
-        self.tilesNumber, self.tileFov, cover = self.vati.calculateTilesNumber(self.dsb_visionField.value(),
-                                                                        self.dsb_percentCoverage.value(),
-                                                                        self.dsb_resolution.value(),
-                                                                        self.sb_nbPixels.value())
+        self.nbTiles, self.tileFov, cover = self.vati.calculateNbTiles(self.dsb_visionField.value(),
+                                                                       self.dsb_percentCoverage.value(),
+                                                                       self.dsb_resolution.value(),
+                                                                       self.sb_nbPixels.value())
         self.tileCoordinatesCenters = self.vati.tilesCoordinates(self.le_target.text(),
-                                                                 self.tilesNumber,
+                                                                 self.nbTiles,
                                                                  self.tileFov,
                                                                  self.dsb_percentCoverage.value())
         self.tbw.setTabEnabled(2, True)
 
     def pb_previewTiles_clicked(self):
         logging.info("pb_previewTiles_clicked")
-        if self.tilesNumber == 0:
+        if self.nbTiles == 0:
             self.pb_calculateTiles.click()
         self.graphics.plotOverviewTiles(self.tileCoordinatesCenters,
+                                        self.nbTiles,
                                         self.tileFov)
 
     def pb_selectFolder_clicked(self):

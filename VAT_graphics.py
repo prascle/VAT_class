@@ -16,6 +16,7 @@ from astropy.wcs import WCS
 from astropy.visualization import astropy_mpl_style
 from astropy.visualization.wcsaxes import Quadrangle
 from astropy import units as u
+from astropy.coordinates import SkyCoord
 
 import logging
 
@@ -97,7 +98,7 @@ class VATgraphics(QWidget):
             imgplot = self.ax.imshow(data, cmap='binary_r', origin='lower')
         self.canvas.draw()
 
-    def plotOverviewTiles(self, tileCoordinatesCenters, tileFov):
+    def plotOverviewTiles(self, tileCoordinatesCenters, nbTiles, tileFov):
         """
         """
         logging.info("VATgraphics plotOverviewTiles")
@@ -105,12 +106,16 @@ class VATgraphics(QWidget):
         self.overviewTiles = not self.overviewTiles
         if self.overviewTiles:
             self.ax.grid(color='black',ls='solid')
-            colors = ["red", "green", "blue"]
+            colors = ["red", "green", "blue", "yellow"] # --- pour que tous les voisins aient des couleurs différentes
             for i in range(len(tileCoordinatesCenters)):
+                c1 = SkyCoord("0h0m0s", tileCoordinatesCenters[i].dec.degree*u.deg)
+                c2 = SkyCoord("0h4m0s", tileCoordinatesCenters[i].dec.degree*u.deg)
+                sep = c1.separation(c2).arcmin/60.
+                decal = 2*((i // nbTiles)%2) # --- pour decaler de 2 couleurs d'une rangée à l'autre
                 r = Quadrangle( tuple([tileCoordinatesCenters[i].ra.degree,tileCoordinatesCenters[i].dec.degree])*u.deg,
-                                1.4*tileFov*u.deg,
+                                (1./sep)*tileFov*u.deg,
                                 tileFov*u.deg,
-                                edgecolor=colors[i%len(colors)],
+                                edgecolor=colors[(i%nbTiles+decal)%len(colors)],
                                 facecolor='none',
                                 transform=self.ax.get_transform('world'))
                 self.ax.add_patch(r)
