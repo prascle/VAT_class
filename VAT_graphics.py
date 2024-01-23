@@ -53,7 +53,7 @@ class VATgraphics(QWidget):
 
     def resetOverviewTiles(self):
         if self.overviewTiles:
-            self.plotOverviewTiles([], 0)
+            self.plotOverviewTiles([], 0, 0)
 
     def plotImage(self, imageFile, title=None):
         '''
