@@ -9,6 +9,7 @@ from PySide2.QtWidgets import *  # type: ignore
 from ui_mainwindow import Ui_MainWindow
 
 import logging
+import json
 
 import VAT_interface
 import VAT_graphics
@@ -47,11 +48,15 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.pb_selectFolder.clicked.connect(self.pb_selectFolder_clicked)
         self.pb_importFits.clicked.connect(self.pb_importFits_clicked)
 
+        self.actionSave_Specs.triggered.connect(self.dumpTargetSpecs)
+        self.actionLoad_Specs.triggered.connect(self.loadTargetSpecs)
+
         self.le_target.textChanged.connect(self.le_target_textChanged)
         self.dsb_visionField.valueChanged.connect(self.dsb_visionField_valueChanged)
         self.dsb_percentCoverage.valueChanged.connect(self.resetPreviewTiles)
         self.dsb_resolution.valueChanged.connect(self.resetPreviewTiles)
         self.sb_nbPixels.valueChanged.connect(self.resetPreviewTiles)
+        self.target = {}
         self.reset()
 
     def reset(self):
@@ -146,6 +151,42 @@ class VATGui(QMainWindow, Ui_MainWindow):
     def pb_importFits_clicked(self):
         logging.info("pb_importFits_clicked")
 
+    def dumpTargetSpecs(self):
+        logging.info("dumpTargetSpecs")
+        self.target["le_target"] = self.le_target.text()
+        self.target["dsb_visionField"] = self.dsb_visionField.value()
+        self.target["sb_nbPixels"] = self.sb_nbPixels.value()
+        self.target["dsb_resolution"] = self.dsb_resolution.value()
+        self.target["dsb_percentCoverage"] = self.dsb_percentCoverage.value()
+        val = json.dumps(self.target, sort_keys=True, indent=4)
+        print(val)
+        dialog = QFileDialog(self, directory="..")
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setNameFilter("json files (*.jsn *.json)")
+        dialog.setDefaultSuffix("json")
+        if (dialog.exec()):
+            fileNames = dialog.selectedFiles()
+            fileName = fileNames[0]
+            with open(fileName, 'w', encoding="utf-8") as f:
+                f.write(val)
+
+    def loadTargetSpecs(self):
+        logging.info("loadTargetSpecs")
+        res = QFileDialog.getOpenFileName(self,
+            "Open target specifications", "..",  "json files (*.jsn *.json)");
+        fileName = res[0]
+        print("filename", fileName)
+        if len(fileName):
+            resu = ""
+            with open(fileName, encoding="utf-8") as f:
+                resu = f.read()
+            val = json.loads(resu)
+            print(val)
+            self.le_target.setText(val["le_target"])
+            self.dsb_visionField.setValue(val["dsb_visionField"])
+            self.sb_nbPixels.setValue(val["sb_nbPixels"])
+            self.dsb_resolution.setValue(val["dsb_resolution"])
+            self.dsb_percentCoverage.setValue(val["dsb_percentCoverage"])
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
