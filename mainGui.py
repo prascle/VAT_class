@@ -59,8 +59,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.dsb_resolution.valueChanged.connect(self.resetPreviewTiles)
         self.sb_nbPixels.valueChanged.connect(self.resetPreviewTiles)
 
-        listSurveys = ['none', 'DSS', 'DSS1 Blue', 'DSS2 Blue', 'DSS1 Red', 'DSS2 Red', 'DSS2 IR',
-                       'Mellinger Red', 'Mellinger Green', 'Mellinger Blue']
+        listSurveys = ['none', 'DSS', 'DSS1 Blue', 'DSS2 Blue', 'DSS1 Red', 'DSS2 Red', 'DSS2 IR']
         self.cb_surveyChannel1.insertItems(0, listSurveys)
         self.cb_surveyChannel2.insertItems(0, listSurveys)
         self.cb_surveyChannel3.insertItems(0, listSurveys)
