@@ -1,4 +1,7 @@
+import os
 import logging
+import json
+import shutil
 
 import numpy as np
 
@@ -89,3 +92,29 @@ class VAT_interface:
                 logging.info("Coordinates of tile (%s, %s): %s"%(i+1,j+1, coord_tile_final))
         return tile_coordinates_center
 
+    def importFits(self, jsonSpecs, tileCoordinatesCenters):
+        logging.info("importFits")
+        specs = json.loads(jsonSpecs)
+        channels = [specs["cb_surveyChannel1"],
+                    specs["cb_surveyChannel2"],
+                    specs["cb_surveyChannel3"],
+                    specs["cb_surveyChannel4"]]
+        chanames = []
+        for j in range(len(channels)):
+            chanames.append(channels[j].replace(' ', '_'))
+        dir = os.path.dirname(specs["targetSpecsFile"])
+        #print(dir)
+        for i in range(len(tileCoordinatesCenters)):
+            for j in range(len(channels)):
+                if channels[j] == "none":
+                    continue
+                fileImage = os.path.splitext(specs["targetSpecsFile"])[0] + '_' + chanames[j] + '_tile_' + str(i) + '.fits'
+                shortFile = os.path.basename(fileImage)
+                #print(fileImage, shortFile)
+                if os.path.isfile(fileImage):
+                    logging.info("file already existing: %s"%fileImage)
+                    continue
+                logging.info("download %s"%fileImage)
+                image = SkyView.get_images(tileCoordinatesCenters[i], survey=channels[j], pixels=specs["sb_nbPixels"] , radius=specs["dsb_resolution"]*u.deg)[0][0]
+                image.writeto(shortFile, overwrite=True, output_verify="ignore")
+                shutil.move(shortFile, fileImage)

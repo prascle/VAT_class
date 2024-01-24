@@ -160,17 +160,11 @@ class VATGui(QMainWindow, Ui_MainWindow):
         res = self.dumpTargetSpecs()
         if res:
             self.pb_importFits.setEnabled(True)
-        #dialog = QFileDialog(self, directory="..")
-        #dialog.setFileMode(QFileDialog.Directory)
-        #if (dialog.exec()):
-            #res = dialog.selectedFiles()
-            #self.folder = res[0]
-            #logging.info("folder: %s"%self.folder)
-
-            #self.pb_importFits.setEnabled(True)
 
     def pb_importFits_clicked(self):
         logging.info("pb_importFits_clicked")
+        jsonSpecs = self.jsonDump()
+        self.vati.importFits(jsonSpecs, self.tileCoordinatesCenters)
 
     def jsonDump(self):
         logging.info("jsonDump")
