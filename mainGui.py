@@ -51,6 +51,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
 
         self.actionSave_Specs.triggered.connect(self.dumpTargetSpecs)
         self.actionLoad_Specs.triggered.connect(self.loadTargetSpecs)
+        self.actionLoad_fits.triggered.connect(self.overviewExistingImageFile)
 
         self.le_target.textChanged.connect(self.le_target_textChanged)
         self.dsb_visionField.valueChanged.connect(self.dsb_visionField_valueChanged)
@@ -111,10 +112,17 @@ class VATGui(QMainWindow, Ui_MainWindow):
     def openExistingImageFile(self):
         logging.info("openExistingImageFile")
         res = QFileDialog.getOpenFileName(self,
-            "Open Image", "../M31/Images",  "Fits Image Files (*.fit *.fits)");
+            "Open Image", "..",  "Fits Image Files (*.fit *.fits)");
         imageFile = res[0]
         logging.info("imageFile: %s"%imageFile)
         return imageFile
+
+    def overviewExistingImageFile(self):
+        imageFile  = self.openExistingImageFile()
+        logging.info("imageFile: %s"%imageFile)
+        if len(imageFile) > 0:
+            self.graphics.plotImage(imageFile)
+
 
     def pb_generateOverview_clicked(self):
         logging.info("pb_generateOverview_clicked")

@@ -491,6 +491,7 @@
     <addaction name="actionLoad_Specs"/>
     <addaction name="actionSave_Specs"/>
     <addaction name="actionReset_Specs"/>
+    <addaction name="actionLoad_fits"/>
    </widget>
    <addaction name="menuTargets"/>
   </widget>
@@ -517,6 +518,11 @@
    </property>
    <property name="toolTip">
     <string>Reset the specifications for acquisition of a region of interest (working example)</string>
+   </property>
+  </action>
+  <action name="actionLoad_fits">
+   <property name="text">
+    <string>Load fits</string>
    </property>
   </action>
  </widget>
