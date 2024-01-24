@@ -129,7 +129,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
         previewOK = False
         hdu = self.vati.generateOverview(self.le_target.text(),
                                          self.dsb_visionField.value(),
-                                         2000)
+                                         1000)
         if hdu is not None:
             self.graphics.plotHDU(hdu, self.le_target.text())
             previewOK = True
@@ -172,7 +172,7 @@ class VATGui(QMainWindow, Ui_MainWindow):
     def pb_importFits_clicked(self):
         logging.info("pb_importFits_clicked")
         jsonSpecs = self.jsonDump()
-        self.vati.importFits(jsonSpecs, self.tileCoordinatesCenters)
+        self.vati.importFits(jsonSpecs, self.tileCoordinatesCenters, self.tileFov)
 
     def jsonDump(self):
         logging.info("jsonDump")

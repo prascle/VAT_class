@@ -46,7 +46,7 @@ class VAT_interface:
         """
         logging.info("generateOverview")
         hdu = None
-        res = SkyView.get_images(objName, survey=['DSS'], pixels=np.int64(np.round(nbPixels/2.)), radius=fovDegree*u.deg)
+        res = SkyView.get_images(objName, survey=['DSS'], pixels=nbPixels, radius=fovDegree*u.deg)
         if len(res) > 0:
             hdu = res[0][0]
         else:
@@ -69,7 +69,7 @@ class VAT_interface:
         """
         logging.info("tilesCoordinates")
         center_coords = SkyCoord.from_name(objName)
-        offset_value = (tileFov*(1-cover/100.) )* u.deg
+        offset_value =  tileFov*(1. - cover/100.)*u.deg
         # --- Direction de référence pour le décalage suivant les déclinaisons positives.
         #     on a pris pi/4 (radian) arbitrairement. Il fallait logiquement une valeur entre 0. et pi/2.
         #     angle = position_angle(lon1, lat1, lon2, lat2) : Position Angle (East of North) between two points on a sphere.
@@ -80,8 +80,8 @@ class VAT_interface:
         position_angle_RAplus   = position_angle(0., 0., alpha,    0.)
         position_angle_RAmoins  = position_angle(0., 0.,-alpha,    0.)
         # --- Translation du point de départ à partir des coordonnées du centre de l'objet ciblé
-        coord_starting_point1 =         center_coords.directional_offset_by(position_angle_RAmoins,  nbTiles*offset_value/2.)
-        coord_starting_point  = coord_starting_point1.directional_offset_by(position_angle_DECmoins, nbTiles*offset_value/2.)
+        coord_starting_point1 =         center_coords.directional_offset_by(position_angle_RAmoins,  (nbTiles-1)*offset_value/2.)
+        coord_starting_point  = coord_starting_point1.directional_offset_by(position_angle_DECmoins, (nbTiles-1)*offset_value/2.)
         # --- On applique ensuite le décalage pour déterminer l'emplacement de chaque tuile à partir de cette nouvelle origine
         tile_coordinates_center = []
         for i in range(nbTiles):
@@ -89,10 +89,10 @@ class VAT_interface:
                 coord_tile_step1 = coord_starting_point.directional_offset_by(position_angle_RAplus,  offset_value*float(i))
                 coord_tile_final =     coord_tile_step1.directional_offset_by(position_angle_DECplus, offset_value*float(j))
                 tile_coordinates_center.append(coord_tile_final)
-                logging.info("Coordinates of tile (%s, %s): %s"%(i+1,j+1, coord_tile_final))
+                logging.info("Coordinates of tile (%s, %s): %s"%(i+1, j+1, coord_tile_final))
         return tile_coordinates_center
 
-    def importFits(self, jsonSpecs, tileCoordinatesCenters):
+    def importFits(self, jsonSpecs, tileCoordinatesCenters, tileFov):
         logging.info("importFits")
         specs = json.loads(jsonSpecs)
         channels = [specs["cb_surveyChannel1"],
@@ -103,18 +103,17 @@ class VAT_interface:
         for j in range(len(channels)):
             chanames.append(channels[j].replace(' ', '_'))
         dir = os.path.dirname(specs["targetSpecsFile"])
-        #print(dir)
+        print(tileFov)
         for i in range(len(tileCoordinatesCenters)):
             for j in range(len(channels)):
                 if channels[j] == "none":
                     continue
                 fileImage = os.path.splitext(specs["targetSpecsFile"])[0] + '_' + chanames[j] + '_tile_' + str(i) + '.fits'
                 shortFile = os.path.basename(fileImage)
-                #print(fileImage, shortFile)
                 if os.path.isfile(fileImage):
                     logging.info("file already existing: %s"%fileImage)
                     continue
                 logging.info("download %s"%fileImage)
-                image = SkyView.get_images(tileCoordinatesCenters[i], survey=channels[j], pixels=specs["sb_nbPixels"] , radius=specs["dsb_resolution"]*u.deg)[0][0]
+                image = SkyView.get_images(tileCoordinatesCenters[i], survey=channels[j], pixels=specs["sb_nbPixels"] , radius=tileFov*u.deg)[0][0]
                 image.writeto(shortFile, overwrite=True, output_verify="ignore")
                 shutil.move(shortFile, fileImage)

@@ -112,7 +112,8 @@ class VATgraphics(QWidget):
                 c2 = SkyCoord("0h4m0s", tileCoordinatesCenters[i].dec.degree*u.deg)
                 sep = c1.separation(c2).arcmin/60.
                 decal = 2*((i // nbTiles)%2) # --- pour decaler de 2 couleurs d'une rangée à l'autre
-                r = Quadrangle( tuple([tileCoordinatesCenters[i].ra.degree,tileCoordinatesCenters[i].dec.degree])*u.deg,
+                r = Quadrangle( tuple([tileCoordinatesCenters[i].ra.degree -0.5/sep*tileFov,
+                                       tileCoordinatesCenters[i].dec.degree -0.5*tileFov])*u.deg,
                                 (1./sep)*tileFov*u.deg,
                                 tileFov*u.deg,
                                 edgecolor=colors[(i%nbTiles+decal)%len(colors)],
