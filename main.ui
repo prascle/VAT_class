@@ -30,7 +30,7 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;le deuxieme tab&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="targetOverview">
        <property name="sizePolicy">
@@ -383,8 +383,11 @@
            </item>
            <item row="4" column="1">
             <widget class="QPushButton" name="pb_selectFolder">
+             <property name="toolTip">
+              <string>choose a folder for saving the specifications and images</string>
+             </property>
              <property name="text">
-              <string>select Folder</string>
+              <string>select Folder, save Specs</string>
              </property>
             </widget>
            </item>
@@ -403,19 +406,38 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="cb_surveyChannel3"/>
+            <widget class="QComboBox" name="cb_surveyChannel3">
+             <property name="toolTip">
+              <string>select or add a survey channel</string>
+             </property>
+            </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="cb_surveyChannel2"/>
+            <widget class="QComboBox" name="cb_surveyChannel2">
+             <property name="toolTip">
+              <string>select or add a survey channel</string>
+             </property>
+            </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="cb_surveyChannel1"/>
+            <widget class="QComboBox" name="cb_surveyChannel1">
+             <property name="toolTip">
+              <string>select or add a survey channel</string>
+             </property>
+            </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QComboBox" name="cb_surveyChannel4"/>
+            <widget class="QComboBox" name="cb_surveyChannel4">
+             <property name="toolTip">
+              <string>select or add a survey channel</string>
+             </property>
+            </widget>
            </item>
            <item row="5" column="1">
             <widget class="QPushButton" name="pb_importFits">
+             <property name="toolTip">
+              <string>import the images in the selected folder (already downloaded images are not reimported)</string>
+             </property>
              <property name="text">
               <string>import Fits</string>
              </property>

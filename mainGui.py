@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import *  # type: ignore
 from PySide2.QtGui import *  # type: ignore
@@ -56,7 +57,23 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.dsb_percentCoverage.valueChanged.connect(self.resetPreviewTiles)
         self.dsb_resolution.valueChanged.connect(self.resetPreviewTiles)
         self.sb_nbPixels.valueChanged.connect(self.resetPreviewTiles)
+
+        listSurveys = ['none', 'DSS', 'DSS1 Blue', 'DSS2 Blue', 'DSS1 Red', 'DSS2 Red', 'DSS2 IR',
+                       'Mellinger Red', 'Mellinger Green', 'Mellinger Blue']
+        self.cb_surveyChannel1.insertItems(0, listSurveys)
+        self.cb_surveyChannel2.insertItems(0, listSurveys)
+        self.cb_surveyChannel3.insertItems(0, listSurveys)
+        self.cb_surveyChannel4.insertItems(0, listSurveys)
+        self.cb_surveyChannel1.setEditable(True)
+        self.cb_surveyChannel2.setEditable(True)
+        self.cb_surveyChannel3.setEditable(True)
+        self.cb_surveyChannel4.setEditable(True)
+        self.cb_surveyChannel1.setCurrentText('DSS')
+        self.cb_surveyChannel2.setCurrentText('DSS2 Blue')
+        self.cb_surveyChannel3.setCurrentText('DSS2 Red')
+        self.cb_surveyChannel4.setCurrentText('DSS2 IR')
         self.target = {}
+        self.targetSpecsFile = ""
         self.reset()
 
     def reset(self):
@@ -140,35 +157,60 @@ class VATGui(QMainWindow, Ui_MainWindow):
 
     def pb_selectFolder_clicked(self):
         logging.info("pb_selectFolder_clicked")
-        dialog = QFileDialog(self, directory="..")
-        dialog.setFileMode(QFileDialog.Directory)
-        if (dialog.exec()):
-            res = dialog.selectedFiles()
-            self.folder = res[0]
-            logging.info("folder: %s"%self.folder)
+        res = self.dumpTargetSpecs()
+        if res:
             self.pb_importFits.setEnabled(True)
+        #dialog = QFileDialog(self, directory="..")
+        #dialog.setFileMode(QFileDialog.Directory)
+        #if (dialog.exec()):
+            #res = dialog.selectedFiles()
+            #self.folder = res[0]
+            #logging.info("folder: %s"%self.folder)
+
+            #self.pb_importFits.setEnabled(True)
 
     def pb_importFits_clicked(self):
         logging.info("pb_importFits_clicked")
 
-    def dumpTargetSpecs(self):
-        logging.info("dumpTargetSpecs")
+    def jsonDump(self):
+        logging.info("jsonDump")
         self.target["le_target"] = self.le_target.text()
         self.target["dsb_visionField"] = self.dsb_visionField.value()
         self.target["sb_nbPixels"] = self.sb_nbPixels.value()
         self.target["dsb_resolution"] = self.dsb_resolution.value()
         self.target["dsb_percentCoverage"] = self.dsb_percentCoverage.value()
+        self.target["cb_surveyChannel1"] = self.cb_surveyChannel1.currentText()
+        self.target["cb_surveyChannel2"] = self.cb_surveyChannel2.currentText()
+        self.target["cb_surveyChannel3"] = self.cb_surveyChannel3.currentText()
+        self.target["cb_surveyChannel4"] = self.cb_surveyChannel4.currentText()
+        self.target["targetSpecsFile"] = self.targetSpecsFile
         val = json.dumps(self.target, sort_keys=True, indent=4)
         print(val)
-        dialog = QFileDialog(self, directory="..")
+        return val
+
+
+    def dumpTargetSpecs(self):
+        logging.info("dumpTargetSpecs")
+        directory = '..'
+        target = self.le_target.text()
+        if len(self.targetSpecsFile):
+            directory = os.path.dirname(self.targetSpecsFile)
+        dialog = QFileDialog(self, directory=directory)
         dialog.setFileMode(QFileDialog.AnyFile)
         dialog.setNameFilter("json files (*.jsn *.json)")
         dialog.setDefaultSuffix("json")
+        dialog.selectFile( target + ".json")
+        dialog.setLabelText(QFileDialog.Accept, 'Save')
         if (dialog.exec()):
             fileNames = dialog.selectedFiles()
             fileName = fileNames[0]
+            self.targetSpecsFile = fileName
+            val = self.jsonDump()
+            print(fileName)
             with open(fileName, 'w', encoding="utf-8") as f:
                 f.write(val)
+            return True
+        return False
 
     def loadTargetSpecs(self):
         logging.info("loadTargetSpecs")
@@ -187,6 +229,11 @@ class VATGui(QMainWindow, Ui_MainWindow):
             self.sb_nbPixels.setValue(val["sb_nbPixels"])
             self.dsb_resolution.setValue(val["dsb_resolution"])
             self.dsb_percentCoverage.setValue(val["dsb_percentCoverage"])
+            self.cb_surveyChannel1.setCurrentText(val["cb_surveyChannel1"])
+            self.cb_surveyChannel2.setCurrentText(val["cb_surveyChannel2"])
+            self.cb_surveyChannel3.setCurrentText(val["cb_surveyChannel3"])
+            self.cb_surveyChannel4.setCurrentText(val["cb_surveyChannel4"])
+            self.targetSpecsFile = val["targetSpecsFile"]
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

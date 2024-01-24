@@ -62,6 +62,7 @@ class VAT_interface:
 
     def tilesCoordinates(self, objName, nbTiles, tileFov, cover):
         """
+        generer la liste des coordonnées des centres des tuiles
         """
         logging.info("tilesCoordinates")
         center_coords = SkyCoord.from_name(objName)
@@ -78,7 +79,7 @@ class VAT_interface:
         # --- Translation du point de départ à partir des coordonnées du centre de l'objet ciblé
         coord_starting_point1 =         center_coords.directional_offset_by(position_angle_RAmoins,  nbTiles*offset_value/2.)
         coord_starting_point  = coord_starting_point1.directional_offset_by(position_angle_DECmoins, nbTiles*offset_value/2.)
-        # On applique ensuite le décalage pour déterminer l'emplacement de chaque tuile à partir de cette nouvelle origine
+        # --- On applique ensuite le décalage pour déterminer l'emplacement de chaque tuile à partir de cette nouvelle origine
         tile_coordinates_center = []
         for i in range(nbTiles):
             for j in range(nbTiles):
