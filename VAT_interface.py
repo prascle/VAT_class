@@ -95,25 +95,40 @@ class VAT_interface:
     def importFits(self, jsonSpecs, tileCoordinatesCenters, tileFov):
         logging.info("importFits")
         specs = json.loads(jsonSpecs)
-        channels = [specs["cb_surveyChannel1"],
-                    specs["cb_surveyChannel2"],
-                    specs["cb_surveyChannel3"],
-                    specs["cb_surveyChannel4"]]
+        allChannels = [specs["cb_surveyChannel1"],
+                       specs["cb_surveyChannel2"],
+                       specs["cb_surveyChannel3"],
+                       specs["cb_surveyChannel4"]]
+        channels = []
         chanames = []
-        for j in range(len(channels)):
-            chanames.append(channels[j].replace(' ', '_'))
+        results = []
+        for j in range(len(allChannels)):
+            if allChannels[j] != "none":
+                channels.append(allChannels[j])
+                chanames.append(allChannels[j].replace(' ', '_'))
         dir = os.path.dirname(specs["targetSpecsFile"])
-        print(tileFov)
+        logging.info("=== get images async (get FileContainers) ===")
         for i in range(len(tileCoordinatesCenters)):
+            nb=0
             for j in range(len(channels)):
-                if channels[j] == "none":
-                    continue
                 fileImage = os.path.splitext(specs["targetSpecsFile"])[0] + '_' + chanames[j] + '_tile_' + str(i) + '.fits'
-                shortFile = os.path.basename(fileImage)
                 if os.path.isfile(fileImage):
                     logging.info("file already existing: %s"%fileImage)
-                    continue
-                logging.info("download %s"%fileImage)
-                image = SkyView.get_images(tileCoordinatesCenters[i], survey=channels[j], pixels=specs["sb_nbPixels"] , radius=tileFov*u.deg)[0][0]
-                image.writeto(shortFile, overwrite=True, output_verify="ignore")
-                shutil.move(shortFile, fileImage)
+                    nb += 1
+            if nb == len(channels):
+                continue
+            logging.info("    async request tiles serie %d"%i)
+            result = SkyView.get_images_async(tileCoordinatesCenters[i], survey=channels, pixels=specs["sb_nbPixels"] , radius=tileFov*u.deg)
+            results.append((i,result))
+
+        logging.info("=== get fits ===")
+        for (i,result) in results:
+            logging.info("    get fits serie %d"%i)
+            for j in range(len(result)):
+                data = result[j].get_fits()
+                fileImage = os.path.splitext(specs["targetSpecsFile"])[0] + '_' + chanames[j] + '_tile_' + str(i) + '.fits'
+                image = data[0]
+                image.writeto(fileImage, overwrite=True, output_verify="ignore")
+
+        logging.info("=== end of import ===")
+

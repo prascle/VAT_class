@@ -59,6 +59,11 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.dsb_resolution.valueChanged.connect(self.resetPreviewTiles)
         self.sb_nbPixels.valueChanged.connect(self.resetPreviewTiles)
 
+        self.cb_surveyChannel1.currentTextChanged.connect(self.resetImport)
+        self.cb_surveyChannel2.currentTextChanged.connect(self.resetImport)
+        self.cb_surveyChannel3.currentTextChanged.connect(self.resetImport)
+        self.cb_surveyChannel4.currentTextChanged.connect(self.resetImport)
+
         listSurveys = ['none', 'DSS', 'DSS1 Blue', 'DSS2 Blue', 'DSS1 Red', 'DSS2 Red', 'DSS2 IR']
         self.cb_surveyChannel1.insertItems(0, listSurveys)
         self.cb_surveyChannel2.insertItems(0, listSurveys)
@@ -88,6 +93,9 @@ class VATGui(QMainWindow, Ui_MainWindow):
         self.tbw.setCurrentIndex(0)
         self.graphics.reset()
 
+    def resetImport(self):
+        self.pb_importFits.setEnabled(False)
+
     def le_target_textChanged(self):
         logging.info("le_target_textChanged")
         self.reset()
@@ -101,6 +109,8 @@ class VATGui(QMainWindow, Ui_MainWindow):
         logging.info("resetPreviewTiles")
         self.nbTiles =0
         self.tileFov = 0
+        self.tbw.setTabEnabled(2, False)
+        self.resetImport()
         self.graphics.resetOverviewTiles()
 
     def pb_getData_clicked(self):
