@@ -22,12 +22,12 @@ Here is an example of virtual environment built with miniconda3:
 conda activate
 conda update -y -n base -c defaults conda
 
-conda create -y --name astro python=3.10
+conda create -y --name astro6 python=3.12
 
-conda activate astro
+conda activate astro6
 conda config --add channels conda-forge
 conda config --set channel_priority strict
-conda install -y pyside2 astropy astroquery matplotlib numpy ipython
+conda install -y pyside6 astropy astroquery matplotlib numpy ipython
 ```
 
 This class provides a GUI to prepare a set of .fits files that can be post-processed with the prefered softwares of the user.  
